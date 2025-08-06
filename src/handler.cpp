@@ -3,7 +3,7 @@
 
 #include <coreinit/debug.h>
 #include <coreinit/exception.h>
-#include <utils/logger.h>
+#include "utils/logger.h"
 
 #include "handler.h"
 
@@ -32,7 +32,8 @@ void FatalCrashHandler() {
              "r25:%08X r26:%08X r27:%08X r28:%08X r29:%08X\n"
              "r30:%08X r31:%08X\n\n"
              "CR: %08X LR: %08X CTR:%08X XER:%08X\n"
-             "SRR0:%08X SRR1:%08X EX0:%08X EX1:%08X\n",
+             "SRR0:%08X SRR1:%08X EX0:%08X EX1:%08X\n"
+             "Take a picture of this crash and send it to me!",
              crashType,
              crashContext.gpr[0],
              crashContext.gpr[1],

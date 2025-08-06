@@ -1,32 +1,42 @@
+#include <cstdio>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <map>
+#include <utility>
+
 #include <string>
 
-#include <string.h>
-#include <stdlib.h>
 
 #include <coreinit/cache.h>
 #include <coreinit/exception.h>
-#include <coreinit/filesystem.h>
 #include <coreinit/memorymap.h>
 #include <coreinit/title.h>
 #include <nsysnet/socket.h>
 #include <utils/logger.h>
 #include <wups.h>
+#include <kernel/kernel.h>
 
-#include "globals.h"
+#include "filesystem.h"
 #include "handler.h"
+#include "globals.h"
 
 #define FS_MAX_LOCALPATH_SIZE           511
-#define FS_MAX_MOUNTPATH_SIZE           128
+#define FS_MAX_MOUNTPATH_SIZE           141
 #define FS_MAX_FULLPATH_SIZE            (FS_MAX_LOCALPATH_SIZE + FS_MAX_MOUNTPATH_SIZE)
 
 WUPS_PLUGIN_NAME("CafeLoader");
 WUPS_PLUGIN_DESCRIPTION("Loader for custom code.");
 WUPS_PLUGIN_VERSION("v1.0");
-WUPS_PLUGIN_AUTHOR("AboodXD");
+WUPS_PLUGIN_AUTHOR("AboodXD, techmuse (Aroma port)");
 WUPS_PLUGIN_LICENSE("GPL");
 
-WUPS_FS_ACCESS()
-WUPS_ALLOW_KERNEL()
+WUPS_USE_WUT_DEVOPTAB();
+WUPS_USE_STORAGE("cafeloader");
+
+//WUPS_FS_ACCESS()
+//WUPS_ALLOW_KERNEL()
 
 bool clientEnabled;
 FSFileHandle file;
@@ -61,11 +71,11 @@ char* readBuf(const char *fname, int f) {
     return buffer;
 }
 
-void KernelCopyData(void *dest, void *source, uint32_t len) {
+void KernelCopyDataWrapper(void *dest, void *source, uint32_t len) {
     ICInvalidateRange(source, len);
     DCFlushRange(source, len);
 
-    WUPS_KernelCopyDataFunction(OSEffectiveToPhysical((uint32_t)dest), OSEffectiveToPhysical((uint32_t)source), len);
+    KernelCopyData(OSEffectiveToPhysical((uint32_t)dest), OSEffectiveToPhysical((uint32_t)source), len);
 
     ICInvalidateRange(dest, len);
     DCFlushRange(dest, len);
@@ -76,14 +86,20 @@ void Patch(char *buffer) {
     for (uint16_t i = 0; i < count; i++) {
         uint16_t bytes = *(uint16_t *)buffer; buffer += 2;
         uint32_t addr = *(uint32_t *)buffer; buffer += 4;
-        KernelCopyData((void *)addr, buffer, bytes); buffer += bytes;
+        KernelCopyDataWrapper((void *)addr, buffer, bytes); buffer += bytes;
     }
 }
 
-ON_APPLICATION_START(args){
-    socket_lib_init();
-    log_init();
+INITIALIZE_PLUGIN() {
+    WHBLogCafeInit();
+    WHBLogUdpInit();
+    DEBUG_FUNCTION_LINE("Is this on\n");
 
+}
+
+ON_APPLICATION_START(){
+   // initLogging();
+    DEBUG_FUNCTION_LINE("In on app start\n");
     clientEnabled = false;
 
     DEBUG_FUNCTION_LINE("Setting the ExceptionCallbacks\n");
@@ -91,11 +107,11 @@ ON_APPLICATION_START(args){
     OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_ISI, ISIHandler_Fatal);
     OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_PROGRAM, ProgramHandler_Fatal);
 
-    if (args.sd_mounted && args.kernel_access) {
+   // if (args.sd_mounted && args.kernel_access) {
         char TitleIDString[FS_MAX_FULLPATH_SIZE];
         snprintf(TitleIDString,FS_MAX_FULLPATH_SIZE,"%016llX",OSGetTitleID());
 
-        std::string patchTitleIDPath = "sd:/cafeloader/";
+        std::string patchTitleIDPath = "fs:/vol/external01/cafeloader/";
         patchTitleIDPath += TitleIDString;
 
         DEBUG_FUNCTION_LINE("patchTitleIDPath: %s\n", patchTitleIDPath.c_str());
@@ -104,7 +120,7 @@ ON_APPLICATION_START(args){
         std::string addrPath    = patchTitleIDPath + "/Addr.bin";
         std::string codePath    = patchTitleIDPath + "/Code.bin";
         std::string dataPath    = patchTitleIDPath + "/Data.bin";
-        std::string ipPath      = "sd:/cafeloader/ip.bin";
+        std::string ipPath      = "fs:/vol/external01/cafeloader/ip.bin";
 
         uint32_t CODE_ADDR;
         uint32_t DATA_ADDR;
@@ -167,7 +183,7 @@ ON_APPLICATION_START(args){
             int   codeFile   = open(codePath.c_str(), O_RDONLY);
             char *codeBuffer = readBuf(codePath.c_str(), codeFile);
             length = getFileLength(codePath.c_str());
-            KernelCopyData((void *)CODE_ADDR, codeBuffer, length);
+            KernelCopyDataWrapper((void *)CODE_ADDR, codeBuffer, length);
 
             close(codeFile);
             free(codeBuffer);
@@ -177,17 +193,21 @@ ON_APPLICATION_START(args){
             int   dataFile   = open(dataPath.c_str(), O_RDONLY);
             char *dataBuffer = readBuf(dataPath.c_str(), dataFile);
             length = getFileLength(dataPath.c_str());
-            KernelCopyData((void *)DATA_ADDR, dataBuffer, length);
+            KernelCopyDataWrapper((void *)DATA_ADDR, dataBuffer, length);
 
             close(dataFile);
             free(dataBuffer);
 
             DEBUG_FUNCTION_LINE("Loaded Data.bin!\n");
 
-            uint32_t debugPtr = (uint32_t)&log_printf_;
-            KernelCopyData((void *)(DATA_ADDR - 4), &debugPtr, sizeof(uint32_t));
+            uint32_t debugPtr = (uint32_t)&_printf_r;
+            KernelCopyDataWrapper((void *)(DATA_ADDR - 4), &debugPtr, sizeof(uint32_t));
 
             DEBUG_FUNCTION_LINE("log_printf_ address: 0x%08X\n", debugPtr);
         }
-    }
+   // }
+}
+
+ON_APPLICATION_ENDS() {
+    DEBUG_FUNCTION_LINE("In on app end\n");
 }
