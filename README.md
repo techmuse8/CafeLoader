@@ -1,5 +1,5 @@
-# CafeLoader
-Custom code loader for the Nintendo Wii U.
+# CafeLoader (Aroma port)
+An attempt to port Cafeloader, a custom code loader for the Nintendo Wii U to Aroma.
 
 ## Wii U Plugin System
 This is a plugin for the [Wii U Plugin System (WUPS)](https://github.com/Maschell/WiiUPluginSystem). To be able to use this plugin, you have to place the resulting `.mod` file in to the following folder:
