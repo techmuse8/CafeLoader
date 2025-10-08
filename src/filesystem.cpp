@@ -2,7 +2,7 @@
 
 #include <coreinit/debug.h>
 #include <coreinit/filesystem.h>
-#include <nsysnet/socket.h>
+#include <sys/socket.h>
 
 #include "globals.h"
 #include "filesocket.h"

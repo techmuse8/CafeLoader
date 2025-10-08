@@ -1,4 +1,8 @@
 build/*
+.vscode/*
+vol/*
 *.cbp
+*.elf
 *.layout
 *.mod
+*.wps
