@@ -2,13 +2,13 @@
 Custom code loader for the Nintendo Wii U.
 
 ## Wii U Plugin System
-This is a plugin for the [Wii U Plugin System (WUPS)](https://github.com/Maschell/WiiUPluginSystem). To be able to use this plugin, you have to place the resulting `.mod` file in to the following folder:
+This is a plugin for the [Wii U Plugin System (WUPS)](https://github.com/Maschell/WiiUPluginSystem). To be able to use this plugin, you have to place the resulting `cafeloader.wps` file in to the following folder:
 
 ```
-sd:/wiiu/plugins
+sd:/wiiu/environments/aroma/plugins
 ```  
 
-When the file is placed on the SDCard, you can load it with [Wii U Plugin Loader](https://github.com/Maschell/WiiUPluginLoader).
+When the file is placed on the SDCard, you can load it with [Wii U Plugin Loader Backend](https://github.com/Maschell/WiiUPluginLoaderBackend).
 
 ## How to use
 Projects have to be compiled to a special format in order to be loaded by CafeLoader.  
