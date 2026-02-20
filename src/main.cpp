@@ -242,8 +242,8 @@ ON_APPLICATION_START() {
         close(codeFile);
         free(codeBuffer);
 
-      //  DEBUG_FUNCTION_LINE("Loaded Code.bin!\n");
-        Notify("Loaded Code.bin!");
+        DEBUG_FUNCTION_LINE("Loaded Code.bin!\n");
+       // Notify("Loaded Code.bin!");
 
         int   dataFile   = open(dataPath.c_str(), O_RDONLY);
         char *dataBuffer = readBuf(dataPath.c_str(), dataFile);
