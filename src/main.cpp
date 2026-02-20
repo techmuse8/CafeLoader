@@ -152,10 +152,10 @@ ON_APPLICATION_START() {
     
     clientEnabled = false;
 
-    DEBUG_FUNCTION_LINE("Setting the ExceptionCallbacks\n");
-    OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_DSI, DSIHandler_Fatal);
-    OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_ISI, ISIHandler_Fatal);
-    OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_PROGRAM, ProgramHandler_Fatal);
+   // DEBUG_FUNCTION_LINE("Setting the ExceptionCallbacks\n");
+   // OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_DSI, DSIHandler_Fatal);
+   // OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_ISI, ISIHandler_Fatal);
+   // OSSetExceptionCallbackEx(OS_EXCEPTION_MODE_GLOBAL_ALL_CORES, OS_EXCEPTION_TYPE_PROGRAM, ProgramHandler_Fatal);
 
     char TitleIDString[FS_MAX_FULLPATH_SIZE];
     snprintf(TitleIDString,FS_MAX_FULLPATH_SIZE,"%016llX",OSGetTitleID());
@@ -178,7 +178,7 @@ ON_APPLICATION_START() {
 
     if (clientEnabled == false && exists(ipPath.c_str())) {
         DEBUG_FUNCTION_LINE("IP file found!\n");
-        Notify("IP file found!");
+      //  Notify("IP file found!");
 
         int   ipFile   = open(ipPath.c_str(), O_RDONLY);
         char *ipBuffer = readBuf(ipPath.c_str(), ipFile);
@@ -198,7 +198,7 @@ ON_APPLICATION_START() {
         recv(fd, &reply, 2, 0);
         if (reply == 0xCAFE) {
             DEBUG_FUNCTION_LINE("Client connected!\n");
-            Notify("Client connected!");
+           // Notify("Client connected!");
             clientEnabled = true;
             file = 0;
         }
@@ -206,7 +206,7 @@ ON_APPLICATION_START() {
 
     if (exists(patchesPath.c_str())) {
         DEBUG_FUNCTION_LINE("Patches.hax found!\n");
-        Notify("Patches.hax found!");
+       // Notify("Patches.hax found!");
 
         int   patchesFile   = open(patchesPath.c_str(), O_RDONLY);
         char *patchesBuffer = readBuf(patchesPath.c_str(), patchesFile);
@@ -216,7 +216,7 @@ ON_APPLICATION_START() {
         free(patchesBuffer);
 
         DEBUG_FUNCTION_LINE("Loaded Patches.hax!\n");
-        Notify("Loaded Patches.hax!");
+      //  Notify("Loaded Patches.hax!");
     }
 
     if (exists(addrPath.c_str()) && exists(codePath.c_str()) && exists(dataPath.c_str())) {
@@ -232,7 +232,7 @@ ON_APPLICATION_START() {
         free(addrBuffer);
 
         DEBUG_FUNCTION_LINE("Loaded Addr.bin!\n");
-        Notify("Loadded Addr.bin!");
+       // Notify("Loadded Addr.bin!");
 
         int   codeFile   = open(codePath.c_str(), O_RDONLY);
         char *codeBuffer = readBuf(codePath.c_str(), codeFile);
@@ -242,7 +242,7 @@ ON_APPLICATION_START() {
         close(codeFile);
         free(codeBuffer);
 
-        DEBUG_FUNCTION_LINE("Loaded Code.bin!\n");
+      //  DEBUG_FUNCTION_LINE("Loaded Code.bin!\n");
         Notify("Loaded Code.bin!");
 
         int   dataFile   = open(dataPath.c_str(), O_RDONLY);
@@ -254,7 +254,7 @@ ON_APPLICATION_START() {
         free(dataBuffer);
 
         DEBUG_FUNCTION_LINE("Loaded Data.bin!\n");
-        Notify("Loaded Data.bin!");
+      //  Notify("Loaded Data.bin!");
 
         void *debugPtr = (void *)&WHBLogPrintf;
         KernelCopyDataV((void *)(DATA_ADDR - 4), &debugPtr, sizeof(uint32_t));
